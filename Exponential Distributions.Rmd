@@ -1,0 +1,150 @@
+---
+title: Investigating the Central Limit Theorem Through Simulations of Exponential
+  Distributions
+author: "Alex Logos"
+date: "2024-02-21"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Title: Investigating the Central Limit Theorem Through Simulations of Exponential Distributions
+
+## Overview
+
+This report investigates the properties of the exponential distribution and its averages to illustrate the Central Limit Theorem (CLT). Using simulations with a lambda of 0.2, we explore how the distribution of averages of 40 exponentials aligns with theoretical expectations, focusing on mean, variance, and normality.
+
+## Simulation Preparation
+
+To simulate the exponential distribution, the R code here uses rexp to generate exponential distributions. The replicate function is used to run the simulation 1000 times, and mean calculates the average of the 40 exponentials for each simulation.
+
+```{r}
+# Suppress warnings 
+options(warn=-1)
+
+# Set parameters
+lambda_value <- 0.2
+sample_size <- 40
+num_simulations <- 1000
+
+# Simulate 1000 averages of 40 exponentials
+averages <- replicate(num_simulations, mean(rexp(sample_size, rate=lambda_value)))
+
+# Display the first few averages for verification
+head(averages)
+```
+
+### Sample Mean versus Theoretical Mean
+
+We compare the sample mean of these simulations to the theoretical mean (1/lambda).
+
+### Sample Variance versus Theoretical Variance
+
+Similarly, we compare the sample variance of the simulations to the theoretical variance, which for averages of distributions should be the variance of the exponential distribution divided by the sample size.
+
+### Distribution Normality
+
+Exploratory Data Analysis: A histogram of the averages will be plotted to visually assess normality, supplemented by a Q-Q plot.
+
+## Report Section
+
+### Simulation Method
+
+We'll execute R code to simulate the scenario described, focusing on generating the data necessary for our analyses.
+
+### Sample Mean versus Theoretical Mean
+
+Figures produced will showcase histograms of the simulated averages with the theoretical mean superimposed. The observed sample mean will be highlighted and compared to the theoretical expectation.
+
+### Sample Variance versus Theoretical Variance
+
+Through figures displaying the variance of the simulated data, we will compare observed variance to theoretical predictions, illustrating how closely the simulated data adheres to theoretical expectations.
+
+### Distribution
+
+A combination of histograms and Q-Q plots will be used to argue for the normality of the distribution of averages, showcasing how the CLT applies to our simulations.
+
+### Confidence Intervals/Tests
+
+We will calculate and interpret confidence intervals for the mean of the simulated averages, providing a statistical basis for comparing the sample to theoretical expectations.
+
+### Assumptions for Conclusions
+
+The report will discuss assumptions underlying the CLT and how they apply to our simulations, including the independence of samples and the distribution requirements.
+
+### Simulation Execution
+
+```{r}
+# Suppress warnings 
+options(warn=-1)
+
+# Load necessary libraries
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(gridExtra)
+  library(MASS) # For truehist() and fitdistr()
+})
+
+# Set parameters
+lambda_value <- 0.2
+sample_size <- 40
+num_simulations <- 1000
+
+# Simulate 1000 averages of 40 exponentials
+averages <- replicate(num_simulations, mean(rexp(sample_size, rate = lambda_value)))
+
+# Calculate the sample mean and variance
+sample_mean <- mean(averages)
+sample_variance <- var(averages)
+
+# Theoretical mean and variance
+theoretical_mean <- 1 / lambda_value
+theoretical_variance <- (1 / lambda_value^2) / sample_size
+
+# Plotting the distribution of averages
+g1 <- ggplot() + geom_histogram(aes(x=averages, y=..density..), binwidth = 0.2, fill='green', alpha=0.6) +
+  geom_vline(aes(xintercept=sample_mean), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept=theoretical_mean), color="blue", linetype="dashed", size=1) +
+  labs(title="Distribution of Averages of 40 Exponentials", x="Average Value", y="Density") +
+  theme_minimal() +
+  geom_text(aes(x=sample_mean, label=paste("Sample Mean:", round(sample_mean, 2)), y=0.02), hjust=0, vjust=0, color="red") +
+  geom_text(aes(x=theoretical_mean, label=paste("Theoretical Mean:", theoretical_mean), y=0.02), hjust=1, vjust=0, color="blue")
+
+# Calculating and plotting Q-Q plot
+qq_data <- qqnorm(averages, plot.it = FALSE)
+qq_df <- data.frame(Theoretical = qq_data$x, Sample = qq_data$y)
+g2 <- ggplot(qq_df, aes(x = Theoretical, y = Sample)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Q-Q Plot of Averages Against Normal Distribution", x = "Theoretical Quantiles", y = "Sample Quantiles") +
+  theme_minimal()
+
+# Plot both plots side by side
+grid.arrange(g1, g2, ncol = 2)
+
+# Print calculated means and variances
+cat(paste("Sample Mean:", sample_mean, "\n",
+          "Sample Variance:", sample_variance, "\n",
+          "Theoretical Mean:", theoretical_mean, "\n",
+          "Theoretical Variance:", theoretical_variance, "\n",
+          sep=""))
+```
+
+## Conclusion
+
+This simulation exercise confirms that the averages of 40 exponentials, with lambda set to 0.2, closely follow a normal distribution, as predicted by the Central Limit Theorem. The observed sample mean and variance are in strong agreement with theoretical expectations, further illustrating the reliability of the theorem in predicting the behavior of sample averages, regardless of the underlying distribution's shape, given a sufficiently large sample size.
+
+## Assumptions and Interpretations
+
+-   The simulations assume that each sample is independent and identically distributed, a key requirement for the Central Limit Theorem to hold.
+
+-   The normality of the distribution of averages, despite the original exponential distribution not being normal, underscores the theorem's power and its assumptions.
+
+-   The close match between observed and theoretical values underlines the importance of understanding distribution properties and the theorem's assumptions in statistical modeling and inference.
+
+This exercise not only demonstrates the application of the Central Limit Theorem to exponential distributions but also highlights the practical considerations when interpreting simulation results in the context of theoretical frameworks.
